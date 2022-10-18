@@ -1,17 +1,46 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import * as actions from './store/actions';
+import { inititeStore } from './store/store';
+
+const store = inititeStore();
+
+const App = () => {
+    const [state, setState] = useState(store.getState());
+
+    useEffect(() => {
+        store.subscribe(() => {
+            setState(store.getState());
+        });
+    }, []);
+
+    const completeTask = (taskId) => {
+        store.dispatch(actions.taskCompleted(taskId));
+    };
+
+    const changeTitle = (taskId) => {
+        store.dispatch(actions.titleChanged(taskId));
+    };
+
+    return (
+        <>
+            <h1>Задачи на сегодня</h1>
+            <ul>
+                {state.map((el) => (
+                    <li key={el.id}>
+                        {el.completed ? <span>&#9745; </span> : <span>&#9744; </span>}
+                        <span>{el.title} </span>
+                        <span>
+                            <button onClick={() => changeTitle(el.id)}>Пометить</button>
+                            <span> &#8226; </span>
+                            <button onClick={() => completeTask(el.id)}>Готово</button>
+                        </span>
+                    </li>
+                ))}
+            </ul>
+        </>
+    );
+};
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+root.render(<App />);
