@@ -22,6 +22,10 @@ const App = () => {
         store.dispatch(actions.titleChanged(taskId));
     };
 
+    const deleteTask = (taskId) => {
+        store.dispatch(actions.taskDeleted(taskId));
+    };
+
     return (
         <>
             <h1>Задачи на сегодня</h1>
@@ -34,6 +38,8 @@ const App = () => {
                             <button onClick={() => changeTitle(el.id)}>Пометить</button>
                             <span> &#8226; </span>
                             <button onClick={() => completeTask(el.id)}>Готово</button>
+                            <span> &#8226; </span>
+                            <button onClick={() => deleteTask(el.id)}>Удалить</button>
                         </span>
                     </li>
                 ))}
