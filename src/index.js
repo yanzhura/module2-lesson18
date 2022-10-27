@@ -1,6 +1,14 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import { titleChanged, taskRemoved, completeTask, loadTasks, getTasks, getTasksLoadingStatus } from './store/tasks';
+import {
+    titleChanged,
+    taskRemoved,
+    completeTask,
+    loadTasks,
+    getTasks,
+    getTasksLoadingStatus,
+    taskCreated
+} from './store/tasks';
 import createStore from './store/store';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import { getErrors } from './store/errors';
@@ -26,6 +34,10 @@ const App = () => {
         dispatch(taskRemoved(taskId));
     };
 
+    const createTask = () => {
+        dispatch(taskCreated());
+    };
+
     if (isLoading) {
         return <h1>Загрузка...</h1>;
     }
@@ -40,24 +52,33 @@ const App = () => {
     }
 
     return (
-        <>
+        <div className="container mt-5">
+            <button className="btn btn-success mb-3" onClick={createTask}>
+                Новая задача
+            </button>
             <h1>Задачи на сегодня</h1>
-            <ul>
+            <div>
                 {state.map((el) => (
-                    <li key={el.id}>
-                        {el.completed ? <span>&#9745; </span> : <span>&#9744; </span>}
-                        <span>{el.title} </span>
-                        <span>
-                            <button onClick={() => changeTitle(el.id)}>Пометить</button>
-                            <span> &#8226; </span>
-                            <button onClick={() => dispatch(completeTask(el.id))}>Готово</button>
-                            <span> &#8226; </span>
-                            <button onClick={() => deleteTask(el.id)}>Удалить</button>
-                        </span>
-                    </li>
+                    <div key={el.id} className="d-flex">
+                        <div className="m-2">
+                            {el.completed ? <i className="bi bi-check-square"></i> : <i className="bi bi-square"></i>}
+                        </div>
+                        <div className="m-2">{el.title} </div>
+                        <button className="btn btn-outline-secondary btn-sm m-2" onClick={() => changeTitle(el.id)}>
+                            Пометить
+                        </button>
+                        <button
+                            className="btn btn-outline-success btn-sm m-2"
+                            onClick={() => dispatch(completeTask(el.id))}>
+                            Готово
+                        </button>
+                        <button className="btn btn-outline-danger btn-sm m-2" onClick={() => deleteTask(el.id)}>
+                            Удалить
+                        </button>
+                    </div>
                 ))}
-            </ul>
-        </>
+            </div>
+        </div>
     );
 };
 

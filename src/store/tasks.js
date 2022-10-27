@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import todosService from '../services/todos.service';
+import { generateTask } from '../utils/taskGenerator';
 import { setError } from './errors';
 
 const initialState = {
@@ -31,12 +32,15 @@ const taskSlice = createSlice({
         },
         taskRequestFailed(state, action) {
             state.isLoading = false;
+        },
+        create(state, action) {
+            state.entities.unshift(action.payload);
         }
     }
 });
 
 const { actions, reducer: taskReducer } = taskSlice;
-const { received, update, remove, taskRequested, taskRequestFailed } = actions;
+const { received, update, remove, taskRequested, taskRequestFailed, create } = actions;
 
 export const loadTasks = () => async (dispatch) => {
     dispatch(taskRequested());
@@ -47,6 +51,14 @@ export const loadTasks = () => async (dispatch) => {
         dispatch(taskRequestFailed());
         dispatch(setError(error.message));
     }
+};
+
+export const taskCreated = () => async (dispatch) => {
+    const task = generateTask();
+    try {
+        const data = await todosService.create(task);
+        dispatch(create(data));
+    } catch (error) {}
 };
 
 export function completeTask(id) {

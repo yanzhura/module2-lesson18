@@ -1,4 +1,5 @@
 import httpService from './http.service';
+import { v4 as uuidV4 } from 'uuid';
 
 const todosEndpoint = '/todos';
 
@@ -11,6 +12,10 @@ const todosService = {
             }
         });
         return data;
+    },
+    create: async (payload) => {
+        const { data } = await httpService.post(todosEndpoint, payload);
+        return { ...data, id: uuidV4() };
     }
 };
 
