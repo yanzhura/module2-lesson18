@@ -1,30 +1,43 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import * as actions from './store/actions';
-import { inititeStore } from './store/store';
+import { titleChanged, taskRemoved, completeTask, loadTasks, getTasks, getTasksLoadingStatus } from './store/tasks';
+import createStore from './store/store';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import { getErrors } from './store/errors';
 
-const store = inititeStore();
+const store = createStore();
 
 const App = () => {
-    const [state, setState] = useState(store.getState());
+    const state = useSelector(getTasks());
+    const isLoading = useSelector(getTasksLoadingStatus());
+    const errors = useSelector(getErrors());
+    const dispatch = useDispatch();
 
     useEffect(() => {
-        store.subscribe(() => {
-            setState(store.getState());
-        });
+        dispatch(loadTasks());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const completeTask = (taskId) => {
-        store.dispatch(actions.taskCompleted(taskId));
-    };
-
     const changeTitle = (taskId) => {
-        store.dispatch(actions.titleChanged(taskId));
+        dispatch(titleChanged(taskId));
     };
 
     const deleteTask = (taskId) => {
-        store.dispatch(actions.taskDeleted(taskId));
+        dispatch(taskRemoved(taskId));
     };
+
+    if (isLoading) {
+        return <h1>Загрузка...</h1>;
+    }
+
+    if (errors.length) {
+        return (
+            <>
+                <h1 style={{ color: 'red' }}>Ошибка</h1>
+                <p>{errors}</p>
+            </>
+        );
+    }
 
     return (
         <>
@@ -37,7 +50,7 @@ const App = () => {
                         <span>
                             <button onClick={() => changeTitle(el.id)}>Пометить</button>
                             <span> &#8226; </span>
-                            <button onClick={() => completeTask(el.id)}>Готово</button>
+                            <button onClick={() => dispatch(completeTask(el.id))}>Готово</button>
                             <span> &#8226; </span>
                             <button onClick={() => deleteTask(el.id)}>Удалить</button>
                         </span>
@@ -49,4 +62,8 @@ const App = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+root.render(
+    <Provider store={store}>
+        <App />
+    </Provider>
+);
